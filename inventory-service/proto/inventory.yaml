@@ -1,0 +1,15 @@
+type: google.api.Service
+config_version: 3
+
+http:
+  rules:
+    - selector: inventory.InventoryService.CheckStock
+      get: /v1/inventory/check-stock/{product_id}
+    - selector: inventory.InventoryService.ReserveStock
+      post: /v1/inventory/reserve-stock
+      body: "*"
+    - selector: inventory.InventoryService.ReleaseStock
+      post: /v1/inventory/release-stock
+      body: "*"
+    - selector: inventory.InventoryService.GetProductByID
+      get: /v1/inventory/get-product-by-id/{product_id}
