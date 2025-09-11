@@ -6,14 +6,13 @@ import (
 	"net/http"
 
 	"github.com/budsx/synapsis/inventory-service/config"
-	"github.com/budsx/synapsis/inventory-service/handler"
 	inventory "github.com/budsx/synapsis/inventory-service/proto"
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 )
 
-func RunGRPCGatewayServer(ctx context.Context, conf *config.Config, handler *handler.InventoryHandler) error {
+func RunGRPCGatewayServer(ctx context.Context, conf *config.Config) error {
 	mux := runtime.NewServeMux()
 	opts := []grpc.DialOption{
 		grpc.WithTransportCredentials(insecure.NewCredentials()),

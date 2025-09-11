@@ -55,15 +55,17 @@
         "quantity": {
           "type": "integer",
           "format": "int32"
+        },
+        "idempotency_key": {
+          "type": "string"
         }
       }
     },
     "orderCreateOrderResponse": {
       "type": "object",
       "properties": {
-        "order_id": {
-          "type": "string",
-          "format": "int64"
+        "message": {
+          "type": "string"
         }
       }
     },

@@ -5,6 +5,8 @@ import (
 
 	"github.com/budsx/synapsis/order-service/repository/interfaces"
 	"github.com/budsx/synapsis/order-service/repository/inventoryclient"
+	"github.com/budsx/synapsis/order-service/repository/postgres"
+	"github.com/budsx/synapsis/order-service/repository/rabbitmq"
 )
 
 type MicroConf struct {
@@ -33,6 +35,8 @@ type RepoConf struct {
 
 type Repository struct {
 	interfaces.InventoryClient
+	interfaces.OrderDBReadWriter
+	interfaces.MessageQueue
 }
 
 func NewRepository(conf RepoConf) (*Repository, error) {
@@ -41,7 +45,20 @@ func NewRepository(conf RepoConf) (*Repository, error) {
 	if err != nil {
 		return nil, err
 	}
+
+	orderRepo, err := postgres.NewPostgresRepository(conf.DBConf.DBHost, conf.DBConf.DBPort, conf.DBConf.DBUser, conf.DBConf.DBPassword, conf.DBConf.DBName, conf.DBConf.DBDriver)
+	if err != nil {
+		return nil, err
+	}
+
+	rabbitmqRepo, err := rabbitmq.NewRabbitMQRepository(conf.RabbitmqConf.RabbitmqURL)
+	if err != nil {
+		return nil, err
+	}
+
 	return &Repository{
-		InventoryClient: inventoryClient,
+		InventoryClient:   inventoryClient,
+		OrderDBReadWriter: orderRepo,
+		MessageQueue:      rabbitmqRepo,
 	}, nil
 }

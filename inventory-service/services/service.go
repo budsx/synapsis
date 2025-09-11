@@ -8,7 +8,7 @@ import (
 )
 
 type InventoryService interface {
-	CheckStock(ctx context.Context, productID int64) (*entity.CheckStockResponse, error)
+	CheckStock(ctx context.Context, request *entity.CheckStockRequest) (*entity.CheckStockResponse, error)
 	ReserveStock(ctx context.Context, request *entity.ReserveStockRequest) (*entity.ReserveStockResponse, error)
 	ReleaseStock(ctx context.Context, request *entity.ReleaseStockRequest) (*entity.ReleaseStockResponse, error)
 	GetProductByID(ctx context.Context, productID int64) (*entity.Product, error)

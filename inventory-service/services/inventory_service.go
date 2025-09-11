@@ -2,21 +2,19 @@ package services
 
 import (
 	"context"
-	"log/slog"
 
 	"github.com/budsx/synapsis/inventory-service/entity"
 )
 
-func (s *inventoryService) CheckStock(ctx context.Context, productID int64) (*entity.CheckStockResponse, error) {
-	slog.Info("Checking stock for product", "product_id", productID)
-	stock, err := s.repo.DBReadWriter.CheckStock(ctx, productID)
+func (s *inventoryService) CheckStock(ctx context.Context, request *entity.CheckStockRequest) (*entity.CheckStockResponse, error) {
+	stock, err := s.repo.DBReadWriter.CheckStock(ctx, request.ProductID)
 	if err != nil {
-		slog.Error("Error checking stock for product", "error", err)
 		return nil, err
 	}
-	slog.Info("Stock checked for product", "product_id", productID, "stock", stock)
+
 	return &entity.CheckStockResponse{
-		Stock: stock,
+		ProductID: request.ProductID,
+		Stock:     stock,
 	}, nil
 }
 

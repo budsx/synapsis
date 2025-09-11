@@ -68,7 +68,7 @@ func (r *postgresRepository) ReserveStock(ctx context.Context, productID int64, 
 	}
 
 	tx, err := r.db.BeginTx(ctx, &sql.TxOptions{
-		Isolation: sql.LevelDefault,
+		Isolation: sql.LevelSerializable,
 	})
 	if err != nil {
 		return err
@@ -105,7 +105,7 @@ func (r *postgresRepository) ReleaseStock(ctx context.Context, productID int64, 
 		return err
 	}
 	tx, err := r.db.BeginTx(ctx, &sql.TxOptions{
-		Isolation: sql.LevelDefault,
+		Isolation: sql.LevelSerializable,
 	})
 	if err != nil {
 		return err

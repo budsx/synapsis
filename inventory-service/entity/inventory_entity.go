@@ -8,8 +8,13 @@ type Product struct {
 	UpdatedAt string
 }
 
+type CheckStockRequest struct {
+	ProductID int64
+}
+
 type CheckStockResponse struct {
-	Stock int64
+	ProductID int64
+	Stock     int64
 }
 
 type ReserveStockResponse struct {

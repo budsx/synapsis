@@ -3,6 +3,7 @@ package handler
 import (
 	"context"
 
+	"github.com/budsx/synapsis/order-service/entity"
 	order "github.com/budsx/synapsis/order-service/proto"
 	"github.com/budsx/synapsis/order-service/services"
 )
@@ -19,5 +20,15 @@ func NewOrderHandler(service services.OrderService) *OrderHandler {
 }
 
 func (h *OrderHandler) CreateOrder(ctx context.Context, req *order.CreateOrderRequest) (*order.CreateOrderResponse, error) {
-	return h.service.CreateOrder(ctx, req)
+	res, err := h.service.CreateOrder(ctx, &entity.CreateOrderRequest{
+		ProductID:      req.ProductId,
+		Quantity:       req.Quantity,
+		IdempotencyKey: req.IdempotencyKey,
+	})
+	if err != nil {
+		return nil, err
+	}
+	return &order.CreateOrderResponse{
+		Message: res.Message,
+	}, nil
 }

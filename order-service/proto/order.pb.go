@@ -22,11 +22,12 @@ const (
 )
 
 type CreateOrderRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	ProductId     int64                  `protobuf:"varint,1,opt,name=product_id,json=productId,proto3" json:"product_id,omitempty"`
-	Quantity      int32                  `protobuf:"varint,2,opt,name=quantity,proto3" json:"quantity,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	state          protoimpl.MessageState `protogen:"open.v1"`
+	ProductId      int64                  `protobuf:"varint,1,opt,name=product_id,json=productId,proto3" json:"product_id,omitempty"`
+	Quantity       int32                  `protobuf:"varint,2,opt,name=quantity,proto3" json:"quantity,omitempty"`
+	IdempotencyKey string                 `protobuf:"bytes,3,opt,name=idempotency_key,json=idempotencyKey,proto3" json:"idempotency_key,omitempty"`
+	unknownFields  protoimpl.UnknownFields
+	sizeCache      protoimpl.SizeCache
 }
 
 func (x *CreateOrderRequest) Reset() {
@@ -73,9 +74,16 @@ func (x *CreateOrderRequest) GetQuantity() int32 {
 	return 0
 }
 
+func (x *CreateOrderRequest) GetIdempotencyKey() string {
+	if x != nil {
+		return x.IdempotencyKey
+	}
+	return ""
+}
+
 type CreateOrderResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	OrderId       int64                  `protobuf:"varint,1,opt,name=order_id,json=orderId,proto3" json:"order_id,omitempty"`
+	Message       string                 `protobuf:"bytes,1,opt,name=message,proto3" json:"message,omitempty"` // Confirmed, Rejected
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -110,24 +118,25 @@ func (*CreateOrderResponse) Descriptor() ([]byte, []int) {
 	return file_order_proto_rawDescGZIP(), []int{1}
 }
 
-func (x *CreateOrderResponse) GetOrderId() int64 {
+func (x *CreateOrderResponse) GetMessage() string {
 	if x != nil {
-		return x.OrderId
+		return x.Message
 	}
-	return 0
+	return ""
 }
 
 var File_order_proto protoreflect.FileDescriptor
 
 const file_order_proto_rawDesc = "" +
 	"\n" +
-	"\vorder.proto\x12\x05order\"O\n" +
+	"\vorder.proto\x12\x05order\"x\n" +
 	"\x12CreateOrderRequest\x12\x1d\n" +
 	"\n" +
 	"product_id\x18\x01 \x01(\x03R\tproductId\x12\x1a\n" +
-	"\bquantity\x18\x02 \x01(\x05R\bquantity\"0\n" +
-	"\x13CreateOrderResponse\x12\x19\n" +
-	"\border_id\x18\x01 \x01(\x03R\aorderId2T\n" +
+	"\bquantity\x18\x02 \x01(\x05R\bquantity\x12'\n" +
+	"\x0fidempotency_key\x18\x03 \x01(\tR\x0eidempotencyKey\"/\n" +
+	"\x13CreateOrderResponse\x12\x18\n" +
+	"\amessage\x18\x01 \x01(\tR\amessage2T\n" +
 	"\fOrderService\x12D\n" +
 	"\vCreateOrder\x12\x19.order.CreateOrderRequest\x1a\x1a.order.CreateOrderResponseB5Z3github.com/budsx/synapsis/order-service/proto;orderb\x06proto3"
 

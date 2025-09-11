@@ -45,7 +45,7 @@ func main() {
 		return
 	}
 	go func() {
-		err := server.RunGRPCGatewayServer(ctx, conf, handler)
+		err := server.RunGRPCGatewayServer(ctx, conf)
 		if err != nil {
 			slog.Error("Failed to create gRPC gateway server", "error", err)
 			return

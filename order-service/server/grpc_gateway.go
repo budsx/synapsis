@@ -6,14 +6,13 @@ import (
 	"net/http"
 
 	"github.com/budsx/synapsis/order-service/config"
-	"github.com/budsx/synapsis/order-service/handler"
 	order "github.com/budsx/synapsis/order-service/proto"
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 )
 
-func RunGRPCGatewayServer(ctx context.Context, conf *config.Config, handler *handler.OrderHandler) error {
+func RunGRPCGatewayServer(ctx context.Context, conf *config.Config) error {
 	mux := runtime.NewServeMux()
 	opts := []grpc.DialOption{
 		grpc.WithTransportCredentials(insecure.NewCredentials()),

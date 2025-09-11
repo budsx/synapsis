@@ -9,6 +9,7 @@ import (
 	"github.com/budsx/synapsis/order-service/repository"
 	"github.com/budsx/synapsis/order-service/server"
 	"github.com/budsx/synapsis/order-service/services"
+	"github.com/budsx/synapsis/order-service/transport/messaging"
 )
 
 func main() {
@@ -38,22 +39,24 @@ func main() {
 	handler := handler.NewOrderHandler(service)
 
 	ctx := context.Background()
-	slog.Info("🌐 Starting gRPC server...", "port", conf.GRPCPort)
 	grpcServer, err := server.RunGRPCServer(conf, handler)
 	if err != nil {
 		slog.Error("Failed to create gRPC server", "error", err)
 		return
 	}
-	slog.Info("✅ gRPC server started", "port", conf.GRPCPort)
 
-	slog.Info("🌐 Starting REST gateway server...", "port", conf.RESTPort)
 	go func() {
-		err := server.RunGRPCGatewayServer(ctx, conf, handler)
+		err := server.RunGRPCGatewayServer(ctx, conf)
 		if err != nil {
 			slog.Error("Failed to create gRPC gateway server", "error", err)
 			return
 		}
 	}()
+
+	if err := messaging.NewTransportOrderMessaging(conf, service, repo.MessageQueue); err != nil {
+		slog.Error("Failed to create transport order messaging", "error", err)
+		return
+	}
 
 	slog.Info("Service orders is running...")
 	server.GracefulShutdown(ctx, map[string]server.Operation{

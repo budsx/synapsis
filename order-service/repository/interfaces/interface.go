@@ -4,9 +4,9 @@ import (
 	"context"
 	"io"
 
-	"github.com/budsx/synapsis/inventory-service/utils/common"
-	order "github.com/budsx/synapsis/order-service/proto"
+	"github.com/budsx/synapsis/order-service/entity"
 	inventory "github.com/budsx/synapsis/order-service/repository/inventoryclient/proto"
+	"github.com/budsx/synapsis/order-service/utils/common"
 )
 
 type InventoryClient interface {
@@ -16,11 +16,13 @@ type InventoryClient interface {
 
 type OrderDBReadWriter interface {
 	io.Closer
-	CreateOrder(ctx context.Context, req *order.CreateOrderRequest) (*order.CreateOrderResponse, error)
+	CreateOrder(ctx context.Context, req *entity.CreateOrderRequest) (*entity.CreateOrderResponse, error)
+	GetOrderByID(ctx context.Context, req *entity.GetOrderByIDRequest) (*entity.Order, error)
 }
 
-type RabbitMQ interface {
+type MessageQueue interface {
 	io.Closer
 	GetClient() *common.RabbitMQClient
-	PublishReserveStock(ctx context.Context, req model.ReserveStockRequest) error
+	PublishReserveStock(ctx context.Context, req entity.ReserveStockRequest) error
+	PublishReleaseStock(ctx context.Context, req entity.ReleaseStockRequest) error
 }

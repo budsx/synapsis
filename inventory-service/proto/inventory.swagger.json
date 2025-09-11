@@ -142,6 +142,10 @@
     "inventoryCheckStockResponse": {
       "type": "object",
       "properties": {
+        "product_id": {
+          "type": "string",
+          "format": "int64"
+        },
         "stock": {
           "type": "string",
           "format": "int64"

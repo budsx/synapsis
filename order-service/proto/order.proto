@@ -6,13 +6,28 @@ package order;
 
 service OrderService {
     rpc CreateOrder(CreateOrderRequest) returns (CreateOrderResponse);
+    rpc GetOrderByID(GetOrderByIDRequest) returns (Order);
 }
 
 message CreateOrderRequest {
     int64 product_id = 1;
     int32 quantity = 2;
+    string idempotency_key = 3;
 }
 
 message CreateOrderResponse {
+    string message = 1; // Confirmed, Rejected
+}
+
+message GetOrderByIDRequest {
     int64 order_id = 1;
+}
+
+message Order {
+    int64 order_id = 1;
+    int64 product_id = 2;
+    int32 quantity = 3;
+    string status = 4;
+    string created_at = 5;
+    string updated_at = 6;
 }

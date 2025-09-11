@@ -3,11 +3,14 @@ package handler
 import (
 	"context"
 
+	"github.com/budsx/synapsis/inventory-service/entity"
 	inventory "github.com/budsx/synapsis/inventory-service/proto"
 )
 
 func (h *InventoryHandler) CheckStock(ctx context.Context, req *inventory.CheckStockRequest) (*inventory.CheckStockResponse, error) {
-	stock, err := h.service.CheckStock(ctx, req.ProductId)
+	stock, err := h.service.CheckStock(ctx, &entity.CheckStockRequest{
+		ProductID: req.ProductId,
+	})
 	if err != nil {
 		return nil, err
 	}
