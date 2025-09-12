@@ -45,7 +45,7 @@ func (s *orderService) CreateOrder(ctx context.Context, req *entity.CreateOrderR
 	}
 
 	// TODO: Write order to database
-	err = s.repo.OrderDBReadWriter.CreateOrder(ctx, &entity.CreateOrderRequest{
+	orderID, err := s.repo.OrderDBReadWriter.CreateOrder(ctx, &entity.CreateOrderRequest{
 		ProductID: req.ProductID,
 		Quantity:  req.Quantity,
 		Status:    OrderStatusConfirmed.String(),
@@ -56,6 +56,7 @@ func (s *orderService) CreateOrder(ctx context.Context, req *entity.CreateOrderR
 	}
 
 	err = s.repo.MessageQueue.PublishReserveStock(ctx, entity.ReserveStockRequest{
+		OrderID:        orderID,
 		ProductID:      req.ProductID,
 		Quantity:       req.Quantity,
 		IdempotencyKey: req.IdempotencyKey,
@@ -67,7 +68,7 @@ func (s *orderService) CreateOrder(ctx context.Context, req *entity.CreateOrderR
 
 	s.logger.Info(ctx, funcName, "Success", "Request", req)
 	return &entity.CreateOrderResponse{
-		Message: OrderStatusConfirmed.String(),
+		Message: OrderStatusPending.String(),
 	}, nil
 }
 
@@ -80,28 +81,27 @@ func (s *orderService) ReserveStockCallback(ctx context.Context, req *entity.Res
 	// Logic:
 	// if reserve status success, update order status to success
 	// if reserve status failed, update order status to rejected
-
 	if req.Status == ReserveStockStatusSuccess.ToInt32() {
-		// err := s.repo.OrderDBReadWriter.UpdateOrderStatus(ctx, &entity.UpdateOrderStatusRequest{
-		// 	OrderID: req.OrderID,
-		// 	Status:  OrderStatusConfirmed.String(),
-		// })
-		// if err != nil {
-		// 	s.logger.Error(ctx, funcName, "Error", err)
-		// 	return err
-		// }
+		err := s.repo.OrderDBReadWriter.UpdateOrderStatus(ctx, &entity.UpdateOrderStatusRequest{
+			OrderID: req.OrderID,
+			Status:  OrderStatusConfirmed.String(),
+		})
+		if err != nil {
+			s.logger.Error(ctx, funcName, "Error", err)
+			return err
+		}
 	} else if req.Status == ReserveStockStatusFailed.ToInt32() {
-		// err := s.repo.OrderDBReadWriter.UpdateOrderStatus(ctx, &entity.UpdateOrderStatusRequest{
-		// 	OrderID: req.OrderID,
-		// 	Status:  OrderStatusRejected.String(),
-		// })
-		// if err != nil {
-		// 	s.logger.Error(ctx, funcName, "Error", err)
-		// 	return err
-		// }
+		err := s.repo.OrderDBReadWriter.UpdateOrderStatus(ctx, &entity.UpdateOrderStatusRequest{
+			OrderID: req.OrderID,
+			Status:  OrderStatusRejected.String(),
+		})
+		if err != nil {
+			s.logger.Error(ctx, funcName, "Error", err)
+			return err
+		}
 	} else {
-		s.logger.Error(ctx, funcName, "Invalid reserve stock status", "Status", req.Status)
-		return errors.New("invalid reserve stock status")
+		s.logger.Warn(ctx, funcName, "Invalid reserve stock status", "Status", req.Status)
+		return nil
 	}
 
 	s.logger.Info(ctx, funcName, "Success")

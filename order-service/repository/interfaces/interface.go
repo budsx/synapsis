@@ -16,8 +16,8 @@ type InventoryClient interface {
 
 type OrderDBReadWriter interface {
 	io.Closer
-	CreateOrder(ctx context.Context, req *entity.CreateOrderRequest) error
-	GetOrderByID(ctx context.Context, req *entity.GetOrderByIDRequest) (*entity.Order, error)
+	CreateOrder(ctx context.Context, req *entity.CreateOrderRequest) (int64, error)
+	UpdateOrderStatus(ctx context.Context, req *entity.UpdateOrderStatusRequest) error
 }
 
 type MessageQueue interface {

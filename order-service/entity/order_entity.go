@@ -3,6 +3,7 @@ package entity
 import "time"
 
 type ReserveStockRequest struct {
+	OrderID        int64
 	ProductID      int64
 	Quantity       int64
 	IdempotencyKey string
@@ -41,7 +42,13 @@ type GetOrderByIDRequest struct {
 }
 
 type ReserveStockCallbackRequest struct {
+	OrderID   int64
 	ProductID int64
 	Quantity  int64
 	Status    int32
+}
+
+type UpdateOrderStatusRequest struct {
+	OrderID int64
+	Status  string
 }

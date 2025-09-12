@@ -42,17 +42,26 @@ func NewPostgresRepository(dbHost string, dbPort int, dbUser string, dbPassword 
 	}, nil
 }
 
-func (r *postgresRepository) CreateOrder(ctx context.Context, req *entity.CreateOrderRequest) error {
+func (r *postgresRepository) CreateOrder(ctx context.Context, req *entity.CreateOrderRequest) (int64, error) {
 	query := `INSERT INTO orders (product_id, quantity, status, created_at, updated_at) VALUES ($1, $2, $3, NOW(), NOW())`
-	_, err := r.db.ExecContext(ctx, query, req.ProductID, req.Quantity, req.Status)
+	result, err := r.db.ExecContext(ctx, query, req.ProductID, req.Quantity, req.Status)
+	if err != nil {
+		return 0, err
+	}
+	lastInsertId, err := result.LastInsertId()
+	if err != nil {
+		return 0, err
+	}
+	return lastInsertId, nil
+}
+
+func (r *postgresRepository) UpdateOrderStatus(ctx context.Context, req *entity.UpdateOrderStatusRequest) error {
+	query := `UPDATE orders SET status = $1 WHERE order_id = $2`
+	_, err := r.db.ExecContext(ctx, query, req.Status, req.OrderID)
 	if err != nil {
 		return err
 	}
 	return nil
-}
-
-func (r *postgresRepository) GetOrderByID(ctx context.Context, req *entity.GetOrderByIDRequest) (*entity.Order, error) {
-	return nil, nil
 }
 
 func (r *postgresRepository) Close() error {
