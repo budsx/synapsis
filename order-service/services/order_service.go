@@ -15,7 +15,7 @@ func (s *orderService) CreateOrder(ctx context.Context, req *entity.CreateOrderR
 	const (
 		funcName = "CreateOrder"
 	)
-	s.logger.Info(ctx, funcName, "Request", req)
+	s.logger.Info(ctx, fmt.Sprintf("%s %s", funcName, "Upper"), "Request", req)
 
 	allow, err := s.repo.Redis.DeduplicateCreateOrder(ctx, req.IdempotencyKey)
 	if err != nil {
@@ -77,6 +77,10 @@ func (s *orderService) ReserveStockCallback(ctx context.Context, req *entity.Res
 	)
 	s.logger.Info(ctx, funcName, "Request", req)
 
+	// Logic:
+	// if reserve status success, update order status to success
+	// if reserve status failed, update order status to rejected
+
 	if req.Status == ReserveStockStatusSuccess.ToInt32() {
 		// err := s.repo.OrderDBReadWriter.UpdateOrderStatus(ctx, &entity.UpdateOrderStatusRequest{
 		// 	OrderID: req.OrderID,
@@ -96,17 +100,9 @@ func (s *orderService) ReserveStockCallback(ctx context.Context, req *entity.Res
 		// 	return err
 		// }
 	} else {
+		s.logger.Error(ctx, funcName, "Invalid reserve stock status", "Status", req.Status)
 		return errors.New("invalid reserve stock status")
 	}
-
-	// err := s.repo.OrderDBReadWriter.UpdateOrderStatus(ctx, &entity.UpdateOrderStatusRequest{
-	// 	OrderID: req.OrderID,
-	// 	Status:  OrderStatusConfirmed.String(),
-	// })
-	// if err != nil {
-	// 	s.logger.Error(ctx, funcName, "Error", err)
-	// 	return err
-	// }
 
 	s.logger.Info(ctx, funcName, "Success")
 	return nil

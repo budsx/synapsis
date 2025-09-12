@@ -19,8 +19,11 @@ func NewLogger() *Logger {
 	logger.SetOutput(os.Stdout)
 	logger.SetFormatter(&logrus.TextFormatter{
 		FullTimestamp: true,
+		CallerPrettyfier: func(frame *runtime.Frame) (function string, file string) {
+			return "", fmt.Sprintf("%s:%d", filepath.Base(frame.File), frame.Line)
+		},
 	})
-	logger.SetReportCaller(false)
+	logger.SetReportCaller(true)
 
 	return &Logger{
 		Logger: logger,
@@ -28,37 +31,25 @@ func NewLogger() *Logger {
 }
 
 func (l *Logger) Info(ctx context.Context, message string, args ...any) {
-	_, file, line, _ := runtime.Caller(1)
-	filename := filepath.Base(file)
 	l.Logger.WithFields(logrus.Fields{
-		"args":   args,
-		"caller": fmt.Sprintf("%s:%d", filename, line),
+		"[INFO]": args,
 	}).Info(message)
 }
 
 func (l *Logger) Error(ctx context.Context, message string, args ...any) {
-	_, file, line, _ := runtime.Caller(1)
-	filename := filepath.Base(file)
 	l.Logger.WithFields(logrus.Fields{
-		"args":   args,
-		"caller": fmt.Sprintf("%s:%d", filename, line),
+		"[ERROR]": args,
 	}).Error(message)
 }
 
 func (l *Logger) Debug(ctx context.Context, message string, args ...any) {
-	_, file, line, _ := runtime.Caller(1)
-	filename := filepath.Base(file)
 	l.Logger.WithFields(logrus.Fields{
-		"args":   args,
-		"caller": fmt.Sprintf("%s:%d", filename, line),
+		"[DEBUG]": args,
 	}).Debug(message)
 }
 
 func (l *Logger) Warn(ctx context.Context, message string, args ...any) {
-	_, file, line, _ := runtime.Caller(1)
-	filename := filepath.Base(file)
 	l.Logger.WithFields(logrus.Fields{
-		"args":   args,
-		"caller": fmt.Sprintf("%s:%d", filename, line),
+		"[WARNING]": args,
 	}).Warn(message)
 }

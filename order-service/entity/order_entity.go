@@ -18,9 +18,9 @@ type Order struct {
 	UserID    int64
 	ProductID int64
 	Quantity  int64
-	Status    string
-	CreatedAt string
-	UpdatedAt string
+	Status    int32
+	CreatedAt time.Time
+	UpdatedAt time.Time
 }
 
 type CreateOrderRequest struct {

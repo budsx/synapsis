@@ -104,7 +104,7 @@ services:
       - RABBITMQ_URL=amqp://synapsis:synapsis@rabbitmq:5672
       - LOG_LEVEL=0
       - TOPIC_RESERVE_STOCK=reserve.stock
-      - TOPIC_RELEASE_STOCK=release.stock
+      - TOPIC_RESERVE_STOCK_CALLBACK=reserve.stock.callback
     depends_on:
       inventory-postgres:
         condition: service_healthy
@@ -137,8 +137,10 @@ services:
       - INVENTORY_PORT=8000
       - LOG_LEVEL=0
       - TOPIC_RESERVE_STOCK=reserve.stock
-      - TOPIC_RELEASE_STOCK=release.stock
+      - TOPIC_RESERVE_STOCK_CALLBACK=reserve.stock.callback
     depends_on:
+      order-postgres:
+        condition: service_healthy
       rabbitmq:
         condition: service_healthy
       redis:
