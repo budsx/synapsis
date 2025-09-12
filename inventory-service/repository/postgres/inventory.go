@@ -68,14 +68,13 @@ func (r *postgresRepository) ReserveStock(ctx context.Context, productID int64, 
 		return fmt.Errorf("stock is not enough")
 	}
 
-	tx, err := r.db.BeginTx(ctx, &sql.TxOptions{
-		Isolation: sql.LevelSerializable,
-	})
+	tx, err := r.db.BeginTx(ctx, &sql.TxOptions{})
 	if err != nil {
 		return err
 	}
 	defer tx.Rollback()
 
+	// Use optimistic locking to avoid race condition
 	queryUpdate := `UPDATE products SET stock = stock - $1, version = version + 1 WHERE id = $2 AND version = $3`
 	result, err := tx.ExecContext(ctx, queryUpdate, quantity, productID, version)
 	if err != nil {
@@ -88,7 +87,7 @@ func (r *postgresRepository) ReserveStock(ctx context.Context, productID int64, 
 	}
 
 	if rowsAffected == 0 {
-		return fmt.Errorf("release stock failed will re retry immediately")
+		return fmt.Errorf("reserve stock failed will re retry immediately")
 	}
 
 	if err := tx.Commit(); err != nil {
@@ -100,20 +99,18 @@ func (r *postgresRepository) ReserveStock(ctx context.Context, productID int64, 
 
 func (r *postgresRepository) ReleaseStock(ctx context.Context, productID int64, quantity int64) error {
 	querySelect := `SELECT id, stock, version FROM products WHERE id = $1`
-	var version int64
-	err := r.db.QueryRowContext(ctx, querySelect, productID).Scan(&version)
+	var id, stock, version int64
+	err := r.db.QueryRowContext(ctx, querySelect, productID).Scan(&id, &stock, &version)
 	if err != nil {
 		return err
 	}
-	tx, err := r.db.BeginTx(ctx, &sql.TxOptions{
-		Isolation: sql.LevelSerializable,
-	})
+	tx, err := r.db.BeginTx(ctx, &sql.TxOptions{})
 	if err != nil {
 		return err
 	}
 	defer tx.Rollback()
 
-	queryUpdate := `UPDATE products SET stock = stock + $1 WHERE id = $2 AND version = $3`
+	queryUpdate := `UPDATE products SET stock = stock + $1, version = version + 1 WHERE id = $2 AND version = $3`
 	result, err := tx.ExecContext(ctx, queryUpdate, quantity, productID, version)
 	if err != nil {
 		return err

@@ -14,5 +14,3 @@ WORKDIR /root/
 COPY --from=builder /app/order-service /order-service
 
 ENTRYPOINT ["/order-service"]
-EXPOSE 8000
-EXPOSE 8001
