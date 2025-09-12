@@ -10,6 +10,7 @@ import (
 	"github.com/budsx/synapsis/inventory-service/server"
 	"github.com/budsx/synapsis/inventory-service/services"
 	"github.com/budsx/synapsis/inventory-service/transport/messaging"
+	common "github.com/budsx/synapsis/inventory-service/utils/common"
 	"github.com/budsx/synapsis/inventory-service/utils/globalvar"
 	"go.elastic.co/apm/v2"
 )
@@ -17,15 +18,16 @@ import (
 func main() {
 	globalvar.APMTracer = apm.DefaultTracer()
 	conf := config.Load()
+	ctx := context.Background()
+	logger := common.NewLogger()
 	repo, err := initRepository(conf)
 	if err != nil {
 		slog.Error("Failed to create repository", "error", err)
 		return
 	}
-	service := services.NewInventoryService(repo)
+	service := services.NewInventoryService(repo, logger)
 	handler := handler.NewInventoryHandler(service)
 
-	ctx := context.Background()
 	grpcServer, err := server.RunGRPCServer(conf, handler)
 	if err != nil {
 		slog.Error("Failed to create gRPC server", "error", err)

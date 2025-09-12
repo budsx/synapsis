@@ -5,6 +5,7 @@ import (
 
 	"github.com/budsx/synapsis/inventory-service/entity"
 	"github.com/budsx/synapsis/inventory-service/repository"
+	"github.com/budsx/synapsis/inventory-service/utils/common"
 )
 
 type InventoryService interface {
@@ -15,10 +16,11 @@ type InventoryService interface {
 }
 
 type inventoryService struct {
-	repo *repository.Repository
+	repo   *repository.Repository
+	logger *common.Logger
 }
 
-func NewInventoryService(repo *repository.Repository) InventoryService {
+func NewInventoryService(repo *repository.Repository, logger *common.Logger) InventoryService {
 	return &inventoryService{
 		repo: repo,
 	}

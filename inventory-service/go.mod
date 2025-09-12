@@ -10,6 +10,7 @@ require (
 	github.com/joho/godotenv v1.5.1
 	github.com/lib/pq v1.10.9
 	github.com/rabbitmq/amqp091-go v1.10.0
+	github.com/sirupsen/logrus v1.9.3
 	go.elastic.co/apm/module/apmgrpc/v2 v2.7.1
 	go.elastic.co/apm/v2 v2.7.1
 	google.golang.org/grpc v1.75.0
