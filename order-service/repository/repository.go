@@ -7,6 +7,7 @@ import (
 	"github.com/budsx/synapsis/order-service/repository/inventoryclient"
 	"github.com/budsx/synapsis/order-service/repository/postgres"
 	"github.com/budsx/synapsis/order-service/repository/rabbitmq"
+	"github.com/budsx/synapsis/order-service/repository/redis"
 )
 
 type MicroConf struct {
@@ -29,16 +30,24 @@ type RabbitmqConf struct {
 	TopicReleaseStock string
 }
 
+type RedisConf struct {
+	RedisHost     string
+	RedisPassword string
+	RedisDB       int
+}
+
 type RepoConf struct {
 	MicroConf    MicroConf
 	DBConf       DBConf
 	RabbitmqConf RabbitmqConf
+	RedisConf    RedisConf
 }
 
 type Repository struct {
 	interfaces.InventoryClient
 	interfaces.OrderDBReadWriter
 	interfaces.MessageQueue
+	interfaces.Redis
 }
 
 func NewRepository(conf RepoConf) (*Repository, error) {
@@ -58,9 +67,18 @@ func NewRepository(conf RepoConf) (*Repository, error) {
 		return nil, err
 	}
 
+	redisRepo := redis.NewRedisRepository(conf.RedisConf.RedisHost, conf.RedisConf.RedisPassword, conf.RedisConf.RedisDB)
+
 	return &Repository{
 		InventoryClient:   inventoryClient,
 		OrderDBReadWriter: orderRepo,
 		MessageQueue:      rabbitmqRepo,
+		Redis:             redisRepo,
 	}, nil
+}
+
+func (r *Repository) Close() {
+	r.MessageQueue.Close()
+	r.Redis.Close()
+	r.OrderDBReadWriter.Close()
 }

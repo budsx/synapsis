@@ -14,24 +14,7 @@ import (
 
 func main() {
 	conf := config.Load()
-	repo, err := repository.NewRepository(repository.RepoConf{
-		DBConf: repository.DBConf{
-			DBHost:     conf.Database.Host,
-			DBPort:     conf.Database.Port,
-			DBUser:     conf.Database.Username,
-			DBPassword: conf.Database.Password,
-			DBName:     conf.Database.DbName,
-			DBDriver:   conf.Database.DriverName,
-		},
-		RabbitmqConf: repository.RabbitmqConf{
-			RabbitmqURL: conf.Rabbitmq.RabbitmqURL,
-			TopicReserveStock: conf.TopicReserveStock,
-		},
-		MicroConf: repository.MicroConf{
-			InventoryHost: conf.InventoryHost,
-			InventoryPort: conf.InventoryPort,
-		},
-	})
+	repo, err := initRepository(conf)
 	if err != nil {
 		slog.Error("Failed to create repository", "error", err)
 		return
@@ -66,8 +49,35 @@ func main() {
 			return nil
 		},
 		"repository": func(ctx context.Context) error {
-			// repo.Close()
+			repo.Close()
 			return nil
 		},
 	})
+}
+
+func initRepository(conf *config.Config) (*repository.Repository, error) {
+	repo, err := repository.NewRepository(repository.RepoConf{
+		DBConf: repository.DBConf{
+			DBHost:     conf.Database.Host,
+			DBPort:     conf.Database.Port,
+			DBUser:     conf.Database.Username,
+			DBPassword: conf.Database.Password,
+			DBName:     conf.Database.DbName,
+			DBDriver:   conf.Database.DriverName,
+		},
+		RabbitmqConf: repository.RabbitmqConf{
+			RabbitmqURL:       conf.Rabbitmq.RabbitmqURL,
+			TopicReserveStock: conf.TopicReserveStock,
+		},
+		MicroConf: repository.MicroConf{
+			InventoryHost: conf.InventoryHost,
+			InventoryPort: conf.InventoryPort,
+		},
+		RedisConf: repository.RedisConf{
+			RedisHost:     conf.Redis.RedisHost,
+			RedisPassword: conf.Redis.RedisPassword,
+			RedisDB:       conf.Redis.RedisDB,
+		},
+	})
+	return repo, err
 }

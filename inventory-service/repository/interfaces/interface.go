@@ -16,11 +16,6 @@ type InventoryDBReadWriter interface {
 	GetProductByID(context.Context, int64) (*entity.Product, error)
 }
 
-type Redis interface {
-	Get(context.Context, string) (string, error)
-	Set(context.Context, string, string) error
-}
-
 type MessageQueue interface {
 	io.Closer
 	GetClient() *common.RabbitMQClient

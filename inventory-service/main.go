@@ -17,20 +17,7 @@ import (
 func main() {
 	globalvar.APMTracer = apm.DefaultTracer()
 	conf := config.Load()
-
-	repo, err := repository.NewRepository(repository.RepoConf{
-		DBConf: repository.DBConf{
-			DBHost:     conf.Database.Host,
-			DBPort:     conf.Database.Port,
-			DBUser:     conf.Database.Username,
-			DBPassword: conf.Database.Password,
-			DBName:     conf.Database.DbName,
-			DBDriver:   conf.Database.DriverName,
-		},
-		RabbitmqConf: repository.RabbitmqConf{
-			RabbitmqURL: conf.Rabbitmq.RabbitmqURL,
-		},
-	})
+	repo, err := initRepository(conf)
 	if err != nil {
 		slog.Error("Failed to create repository", "error", err)
 		return
@@ -68,4 +55,21 @@ func main() {
 			return nil
 		},
 	})
+}
+
+func initRepository(conf *config.Config) (*repository.Repository, error) {
+	repo, err := repository.NewRepository(repository.RepoConf{
+		DBConf: repository.DBConf{
+			DBHost:     conf.Database.Host,
+			DBPort:     conf.Database.Port,
+			DBUser:     conf.Database.Username,
+			DBPassword: conf.Database.Password,
+			DBName:     conf.Database.DbName,
+			DBDriver:   conf.Database.DriverName,
+		},
+		RabbitmqConf: repository.RabbitmqConf{
+			RabbitmqURL: conf.Rabbitmq.RabbitmqURL,
+		},
+	})
+	return repo, err
 }

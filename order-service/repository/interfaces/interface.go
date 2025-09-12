@@ -26,3 +26,8 @@ type MessageQueue interface {
 	PublishReserveStock(ctx context.Context, req entity.ReserveStockRequest) error
 	PublishReleaseStock(ctx context.Context, req entity.ReleaseStockRequest) error
 }
+
+type Redis interface {
+	io.Closer
+	DeduplicateCreateOrder(ctx context.Context, idempotencyKey string) (bool, error)
+}

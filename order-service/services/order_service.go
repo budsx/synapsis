@@ -17,7 +17,7 @@ func (s *orderService) CreateOrder(ctx context.Context, req *entity.CreateOrderR
 
 	if stock.Stock < req.Quantity || stock.Stock == 0 {
 		return &entity.CreateOrderResponse{
-			Message: OrderStatusRejected,
+			Message: OrderStatusRejected.String(),
 		}, nil
 	}
 
@@ -31,7 +31,7 @@ func (s *orderService) CreateOrder(ctx context.Context, req *entity.CreateOrderR
 	}
 
 	return &entity.CreateOrderResponse{
-		Message: OrderStatusConfirmed,
+		Message: OrderStatusConfirmed.String(),
 	}, nil
 }
 

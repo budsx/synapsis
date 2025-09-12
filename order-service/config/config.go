@@ -17,6 +17,7 @@ type Config struct {
 	InventoryPort     int
 	TopicReserveStock string
 	TopicReleaseStock string
+	Redis             Redis
 }
 
 type Database struct {
@@ -34,6 +35,12 @@ type Rabbitmq struct {
 
 type Log struct {
 	Level int
+}
+
+type Redis struct {
+	RedisHost     string
+	RedisPassword string
+	RedisDB       int
 }
 
 func Load() *Config {
@@ -59,6 +66,11 @@ func Load() *Config {
 		InventoryPort:     getEnvInt("INVENTORY_PORT", 8000),
 		TopicReserveStock: getEnv("TOPIC_RESERVE_STOCK", "reserve.stock"),
 		TopicReleaseStock: getEnv("TOPIC_RELEASE_STOCK", "release.stock"),
+		Redis: Redis{
+			RedisHost:     getEnv("REDIS_HOST", "localhost"),
+			RedisPassword: getEnv("REDIS_PASSWORD", "redis"),
+			RedisDB:       getEnvInt("REDIS_DB", 0),
+		},
 	}
 }
 
