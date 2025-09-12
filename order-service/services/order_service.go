@@ -3,6 +3,7 @@ package services
 import (
 	"context"
 	"errors"
+	"fmt"
 
 	"github.com/budsx/synapsis/order-service/entity"
 	inventory "github.com/budsx/synapsis/order-service/repository/inventoryclient/proto"
@@ -76,6 +77,28 @@ func (s *orderService) ReserveStockCallback(ctx context.Context, req *entity.Res
 	)
 	s.logger.Info(ctx, funcName, "Request", req)
 
+	if req.Status == ReserveStockStatusSuccess.ToInt32() {
+		// err := s.repo.OrderDBReadWriter.UpdateOrderStatus(ctx, &entity.UpdateOrderStatusRequest{
+		// 	OrderID: req.OrderID,
+		// 	Status:  OrderStatusConfirmed.String(),
+		// })
+		// if err != nil {
+		// 	s.logger.Error(ctx, funcName, "Error", err)
+		// 	return err
+		// }
+	} else if req.Status == ReserveStockStatusFailed.ToInt32() {
+		// err := s.repo.OrderDBReadWriter.UpdateOrderStatus(ctx, &entity.UpdateOrderStatusRequest{
+		// 	OrderID: req.OrderID,
+		// 	Status:  OrderStatusRejected.String(),
+		// })
+		// if err != nil {
+		// 	s.logger.Error(ctx, funcName, "Error", err)
+		// 	return err
+		// }
+	} else {
+		return errors.New("invalid reserve stock status")
+	}
+
 	// err := s.repo.OrderDBReadWriter.UpdateOrderStatus(ctx, &entity.UpdateOrderStatusRequest{
 	// 	OrderID: req.OrderID,
 	// 	Status:  OrderStatusConfirmed.String(),
@@ -85,6 +108,6 @@ func (s *orderService) ReserveStockCallback(ctx context.Context, req *entity.Res
 	// 	return err
 	// }
 
-	// s.logger.Info(ctx, funcName, "Success", "Request", req)
+	s.logger.Info(ctx, funcName, "Success")
 	return nil
 }
