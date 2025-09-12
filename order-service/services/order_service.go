@@ -45,10 +45,10 @@ func (s *orderService) CreateOrder(ctx context.Context, req *entity.CreateOrderR
 	}
 
 	// TODO: Write order to database
-	orderID, err := s.repo.OrderDBReadWriter.CreateOrder(ctx, &entity.CreateOrderRequest{
+	_, err = s.repo.OrderDBReadWriter.CreateOrder(ctx, &entity.CreateOrderRequest{
 		ProductID: req.ProductID,
 		Quantity:  req.Quantity,
-		Status:    OrderStatusConfirmed.String(),
+		Status:    OrderStatusPending.String(),
 	})
 	if err != nil {
 		s.logger.Error(ctx, funcName, "Error", err)
@@ -56,7 +56,6 @@ func (s *orderService) CreateOrder(ctx context.Context, req *entity.CreateOrderR
 	}
 
 	err = s.repo.MessageQueue.PublishReserveStock(ctx, entity.ReserveStockRequest{
-		OrderID:        orderID,
 		ProductID:      req.ProductID,
 		Quantity:       req.Quantity,
 		IdempotencyKey: req.IdempotencyKey,

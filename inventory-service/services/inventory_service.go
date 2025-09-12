@@ -28,17 +28,6 @@ func (s *inventoryService) ReserveStock(ctx context.Context, request *entity.Res
 		return err
 	}
 
-	err = s.repo.MessageQueue.PublishReserveStockCallback(ctx, &entity.ReserveStockCallbackRequest{
-		OrderID:   request.OrderID,
-		ProductID: request.ProductID,
-		Quantity:  request.Quantity,
-		Status:    ReserveStockStatusSuccess.ToInt32(),
-	})
-	if err != nil {
-		s.logger.Error(ctx, "PublishReserveStockCallback", "error", err)
-		return err
-	}
-
 	s.logger.Info(ctx, "ReserveStock", "success")
 	return nil
 }
