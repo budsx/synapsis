@@ -1,6 +1,7 @@
 package services
 
 const (
+	OrderStatusPending   = "Pending"
 	OrderStatusConfirmed = "Confirmed"
 	OrderStatusRejected  = "Rejected"
 )

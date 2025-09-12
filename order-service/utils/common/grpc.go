@@ -49,9 +49,9 @@ func circuitBreakerInterceptor(cb *gobreaker.CircuitBreaker) grpc.UnaryClientInt
 	}
 }
 
-func SetupCircuitBreaker(timeout time.Duration) *gobreaker.CircuitBreaker {
+func SetupCircuitBreaker(timeout time.Duration, serviceName string) *gobreaker.CircuitBreaker {
 	return gobreaker.NewCircuitBreaker(gobreaker.Settings{
-		Name:         "inventory",
+		Name:         serviceName,
 		MaxRequests:  10,
 		Interval:     2 * timeout,
 		Timeout:      timeout,
