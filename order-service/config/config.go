@@ -8,16 +8,16 @@ import (
 )
 
 type Config struct {
-	Database          Database
-	Log               Log
-	GRPCPort          int
-	RESTPort          int
-	Rabbitmq          Rabbitmq
-	InventoryHost     string
-	InventoryPort     int
-	TopicReserveStock string
-	TopicReleaseStock string
-	Redis             Redis
+	Database                  Database
+	Log                       Log
+	GRPCPort                  int
+	RESTPort                  int
+	Rabbitmq                  Rabbitmq
+	InventoryHost             string
+	InventoryPort             int
+	TopicReserveStock         string
+	TopicReserveStockCallback string
+	Redis                     Redis
 }
 
 type Database struct {
@@ -62,10 +62,10 @@ func Load() *Config {
 		Rabbitmq: Rabbitmq{
 			RabbitmqURL: getEnv("RABBITMQ_URL", "amqp://guest:guest@localhost:5672/"),
 		},
-		InventoryHost:     getEnv("INVENTORY_HOST", "localhost"),
-		InventoryPort:     getEnvInt("INVENTORY_PORT", 8000),
-		TopicReserveStock: getEnv("TOPIC_RESERVE_STOCK", "reserve.stock"),
-		TopicReleaseStock: getEnv("TOPIC_RELEASE_STOCK", "release.stock"),
+		InventoryHost:             getEnv("INVENTORY_HOST", "localhost"),
+		InventoryPort:             getEnvInt("INVENTORY_PORT", 8000),
+		TopicReserveStock:         getEnv("TOPIC_RESERVE_STOCK", "reserve.stock"),
+		TopicReserveStockCallback: getEnv("TOPIC_RESERVE_STOCK_CALLBACK", "reserve.stock.callback"),
 		Redis: Redis{
 			RedisHost:     getEnv("REDIS_HOST", "localhost"),
 			RedisPassword: getEnv("REDIS_PASSWORD", "redis"),

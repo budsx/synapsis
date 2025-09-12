@@ -71,9 +71,20 @@ func (s *orderService) CreateOrder(ctx context.Context, req *entity.CreateOrderR
 }
 
 func (s *orderService) ReserveStockCallback(ctx context.Context, req *entity.ReserveStockCallbackRequest) error {
-	return nil
-}
+	const (
+		funcName = "ReserveStockCallback"
+	)
+	s.logger.Info(ctx, funcName, "Request", req)
 
-func (s *orderService) ReleaseStockCallback(ctx context.Context, req *entity.ReleaseStockCallbackRequest) error {
+	// err := s.repo.OrderDBReadWriter.UpdateOrderStatus(ctx, &entity.UpdateOrderStatusRequest{
+	// 	OrderID: req.OrderID,
+	// 	Status:  OrderStatusConfirmed.String(),
+	// })
+	// if err != nil {
+	// 	s.logger.Error(ctx, funcName, "Error", err)
+	// 	return err
+	// }
+
+	// s.logger.Info(ctx, funcName, "Success", "Request", req)
 	return nil
 }

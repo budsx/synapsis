@@ -2,6 +2,7 @@ package messaging
 
 import (
 	"fmt"
+	"log/slog"
 
 	"github.com/budsx/synapsis/order-service/config"
 	"github.com/budsx/synapsis/order-service/repository/interfaces"
@@ -18,13 +19,10 @@ func NewTransportOrderMessaging(conf *config.Config, service services.OrderServi
 		return fmt.Errorf("rabbitmq client is nil")
 	}
 
-	// if err := client.Subscribe(conf.ReserveStockCallbackExchange, fmt.Sprintf("%s.%s", conf.ReserveStockCallbackExchange, subsName), ReserveStockCallback(service)); err != nil {
-	// 	return err
-	// }
-
-	// if err := client.Subscribe(conf.ReleaseStockCallbackExchange, fmt.Sprintf("%s.%s", conf.ReleaseStockCallbackExchange, subsName), ReleaseStockCallback(service)); err != nil {
-	// 	return err
-	// }
+	slog.Info("Subscribing to reserve stock callback", "topic", conf.TopicReserveStockCallback)
+	if err := client.Subscribe(conf.TopicReserveStockCallback, fmt.Sprintf("%s.%s", conf.TopicReserveStockCallback, subsName), ReserveStockCallback(service)); err != nil {
+		return err
+	}
 
 	return nil
 }

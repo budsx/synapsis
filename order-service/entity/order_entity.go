@@ -43,9 +43,5 @@ type GetOrderByIDRequest struct {
 type ReserveStockCallbackRequest struct {
 	ProductID int64
 	Quantity  int64
-}
-
-type ReleaseStockCallbackRequest struct {
-	ProductID int64
-	Quantity  int64
+	Status    string
 }
