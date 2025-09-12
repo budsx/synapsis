@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"log/slog"
 
 	"github.com/budsx/synapsis/order-service/config"
 	"github.com/budsx/synapsis/order-service/handler"
@@ -10,39 +9,41 @@ import (
 	"github.com/budsx/synapsis/order-service/server"
 	"github.com/budsx/synapsis/order-service/services"
 	"github.com/budsx/synapsis/order-service/transport/messaging"
+	"github.com/budsx/synapsis/order-service/utils/common"
 )
 
 func main() {
 	conf := config.Load()
+	logger := common.NewLogger()
 	repo, err := initRepository(conf)
+	ctx := context.Background()
 	if err != nil {
-		slog.Error("Failed to create repository", "error", err)
+		logger.Error(ctx, "Failed to create repository", "error", err)
 		return
 	}
-	service := services.NewOrderService(repo)
+	service := services.NewOrderService(repo, logger)
 	handler := handler.NewOrderHandler(service)
 
-	ctx := context.Background()
 	grpcServer, err := server.RunGRPCServer(conf, handler)
 	if err != nil {
-		slog.Error("Failed to create gRPC server", "error", err)
+		logger.Error(ctx, "Failed to create gRPC server", "error", err)
 		return
 	}
 
 	go func() {
 		err := server.RunGRPCGatewayServer(ctx, conf)
 		if err != nil {
-			slog.Error("Failed to create gRPC gateway server", "error", err)
+			logger.Error(ctx, "Failed to create gRPC gateway server", "error", err)
 			return
 		}
 	}()
 
 	if err := messaging.NewTransportOrderMessaging(conf, service, repo.MessageQueue); err != nil {
-		slog.Error("Failed to create transport order messaging", "error", err)
+		logger.Error(ctx, "Failed to create transport order messaging", "error", err)
 		return
 	}
 
-	slog.Info("Service orders is running...")
+	logger.Info(ctx, "Service orders is running...")
 	server.GracefulShutdown(ctx, map[string]server.Operation{
 		"grpc_server": func(ctx context.Context) error {
 			grpcServer.GracefulStop()

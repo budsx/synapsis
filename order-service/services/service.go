@@ -5,6 +5,7 @@ import (
 
 	"github.com/budsx/synapsis/order-service/entity"
 	"github.com/budsx/synapsis/order-service/repository"
+	"github.com/budsx/synapsis/order-service/utils/common"
 )
 
 type OrderService interface {
@@ -14,10 +15,11 @@ type OrderService interface {
 }
 
 type orderService struct {
-	repo *repository.Repository
+	repo   *repository.Repository
+	logger *common.Logger
 }
 
-func NewOrderService(repo *repository.Repository) OrderService {
+func NewOrderService(repo *repository.Repository, logger *common.Logger) OrderService {
 	return &orderService{
 		repo: repo,
 	}

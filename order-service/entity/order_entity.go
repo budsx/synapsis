@@ -1,5 +1,7 @@
 package entity
 
+import "time"
+
 type ReserveStockRequest struct {
 	ProductID      int64
 	Quantity       int64
@@ -25,6 +27,9 @@ type CreateOrderRequest struct {
 	ProductID      int64
 	Quantity       int64
 	IdempotencyKey string
+	Status         string
+	CreatedAt      time.Time
+	UpdatedAt      time.Time
 }
 
 type CreateOrderResponse struct {

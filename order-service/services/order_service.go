@@ -3,7 +3,6 @@ package services
 import (
 	"context"
 	"errors"
-	"log/slog"
 
 	"github.com/budsx/synapsis/order-service/entity"
 	inventory "github.com/budsx/synapsis/order-service/repository/inventoryclient/proto"
@@ -12,11 +11,18 @@ import (
 )
 
 func (s *orderService) CreateOrder(ctx context.Context, req *entity.CreateOrderRequest) (*entity.CreateOrderResponse, error) {
+	const (
+		funcName = "CreateOrder"
+	)
+	s.logger.Info(ctx, funcName, "Request", req)
+
 	allow, err := s.repo.Redis.DeduplicateCreateOrder(ctx, req.IdempotencyKey)
 	if err != nil {
+		s.logger.Error(ctx, funcName, "Error", err)
 		return nil, err
 	}
 	if !allow {
+		s.logger.Info(ctx, funcName, "Duplicate request", "request", req)
 		return &entity.CreateOrderResponse{
 			Message: OrderStatusRejected.String(),
 		}, status.Error(codes.PermissionDenied, "duplicate request")
@@ -26,16 +32,27 @@ func (s *orderService) CreateOrder(ctx context.Context, req *entity.CreateOrderR
 		ProductId: req.ProductID,
 	})
 	if err != nil {
+		s.logger.Error(ctx, funcName, "Error", err)
 		return nil, err
 	}
 
 	if stock.Stock < req.Quantity || stock.Stock == 0 {
+		s.logger.Info(ctx, funcName, "Stock not enough", "StockResponse", stock)
 		return &entity.CreateOrderResponse{
 			Message: OrderStatusRejected.String(),
 		}, nil
 	}
 
-	// Write order to database
+	// TODO: Write order to database
+	err = s.repo.OrderDBReadWriter.CreateOrder(ctx, &entity.CreateOrderRequest{
+		ProductID: req.ProductID,
+		Quantity:  req.Quantity,
+		Status:    OrderStatusConfirmed.String(),
+	})
+	if err != nil {
+		s.logger.Error(ctx, funcName, "Error", err)
+		return nil, err
+	}
 
 	err = s.repo.MessageQueue.PublishReserveStock(ctx, entity.ReserveStockRequest{
 		ProductID:      req.ProductID,
@@ -43,10 +60,11 @@ func (s *orderService) CreateOrder(ctx context.Context, req *entity.CreateOrderR
 		IdempotencyKey: req.IdempotencyKey,
 	})
 	if err != nil {
-		slog.ErrorContext(ctx, "failed to publish reserve stock", "error", err)
+		s.logger.Error(ctx, funcName, "Error", err)
 		return nil, errors.New("failed to publish reserve stock")
 	}
 
+	s.logger.Info(ctx, funcName, "Success", "Request", req)
 	return &entity.CreateOrderResponse{
 		Message: OrderStatusConfirmed.String(),
 	}, nil

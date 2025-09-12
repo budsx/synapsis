@@ -42,8 +42,13 @@ func NewPostgresRepository(dbHost string, dbPort int, dbUser string, dbPassword 
 	}, nil
 }
 
-func (r *postgresRepository) CreateOrder(ctx context.Context, req *entity.CreateOrderRequest) (*entity.CreateOrderResponse, error) {
-	return nil, nil
+func (r *postgresRepository) CreateOrder(ctx context.Context, req *entity.CreateOrderRequest) error {
+	query := `INSERT INTO orders (product_id, quantity, status, created_at, updated_at) VALUES ($1, $2, $3, NOW(), NOW())`
+	_, err := r.db.ExecContext(ctx, query, req.ProductID, req.Quantity, req.Status)
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 func (r *postgresRepository) GetOrderByID(ctx context.Context, req *entity.GetOrderByIDRequest) (*entity.Order, error) {
