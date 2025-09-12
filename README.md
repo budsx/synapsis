@@ -2,5 +2,5 @@
 
 ## Architecture
 
-![Architecture](https://imgur.com/a/8nCrdJt)
+![Architecture](https://i.imgur.com/rXPhvhs.png)
 
