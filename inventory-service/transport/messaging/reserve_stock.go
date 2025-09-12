@@ -9,14 +9,14 @@ import (
 )
 
 func ReserveStock(service services.InventoryService) func([]byte) error {
-	return func(paymentResponse []byte) error {
+	return func(request []byte) error {
 		var reserveStock *entity.ReserveStockRequest
-		err := json.Unmarshal(paymentResponse, &reserveStock)
+		err := json.Unmarshal(request, &reserveStock)
 		if err != nil {
 			return err
 		}
 
-		_, err = service.ReserveStock(context.Background(), reserveStock)
+		err = service.ReserveStock(context.Background(), reserveStock)
 		if err != nil {
 			return err
 		}

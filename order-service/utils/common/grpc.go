@@ -9,6 +9,7 @@ import (
 	"github.com/sony/gobreaker"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
+	"google.golang.org/grpc/metadata"
 )
 
 func ReadyToTrip(counts gobreaker.Counts) bool {
@@ -57,4 +58,14 @@ func SetupCircuitBreaker(timeout time.Duration) *gobreaker.CircuitBreaker {
 		ReadyToTrip:  ReadyToTrip,
 		IsSuccessful: IsSuccess,
 	})
+}
+
+func GetRequestHeaderByKey(ctx context.Context, key string) string {
+	md, ok := metadata.FromIncomingContext(ctx)
+	if ok {
+		if keys := md.Get(key); len(keys) > 0 {
+			return keys[0]
+		}
+	}
+	return ""
 }

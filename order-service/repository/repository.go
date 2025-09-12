@@ -24,7 +24,9 @@ type DBConf struct {
 }
 
 type RabbitmqConf struct {
-	RabbitmqURL string
+	RabbitmqURL       string
+	TopicReserveStock string
+	TopicReleaseStock string
 }
 
 type RepoConf struct {
@@ -51,7 +53,7 @@ func NewRepository(conf RepoConf) (*Repository, error) {
 		return nil, err
 	}
 
-	rabbitmqRepo, err := rabbitmq.NewRabbitMQRepository(conf.RabbitmqConf.RabbitmqURL)
+	rabbitmqRepo, err := rabbitmq.NewRabbitMQRepository(conf.RabbitmqConf.RabbitmqURL, conf.RabbitmqConf.TopicReserveStock, conf.RabbitmqConf.TopicReleaseStock)
 	if err != nil {
 		return nil, err
 	}

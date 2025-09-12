@@ -5,7 +5,7 @@ import (
 )
 
 func ReleaseStockCallback(service services.OrderService) func([]byte) error {
-	return func(paymentResponse []byte) error {
+	return func( []byte) error {
 		// var releaseStock *entity.ReleaseStockRequest
 		// err := json.Unmarshal(paymentResponse, &releaseStock)
 		// if err != nil {

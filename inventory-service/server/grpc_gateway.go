@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"net/http"
+	"strings"
 
 	"github.com/budsx/synapsis/inventory-service/config"
 	inventory "github.com/budsx/synapsis/inventory-service/proto"
@@ -13,7 +14,11 @@ import (
 )
 
 func RunGRPCGatewayServer(ctx context.Context, conf *config.Config) error {
-	mux := runtime.NewServeMux()
+	mux := runtime.NewServeMux(
+		runtime.WithIncomingHeaderMatcher(customHeaderMatcher),
+		runtime.WithOutgoingHeaderMatcher(runtime.DefaultHeaderMatcher),
+	)
+
 	opts := []grpc.DialOption{
 		grpc.WithTransportCredentials(insecure.NewCredentials()),
 	}
@@ -26,4 +31,26 @@ func RunGRPCGatewayServer(ctx context.Context, conf *config.Config) error {
 		return fmt.Errorf("failed to serve: %v", err)
 	}
 	return nil
+}
+
+func customHeaderMatcher(key string) (string, bool) {
+	key = strings.ToLower(key)
+	switch key {
+	case "x-idempotency-key":
+		return "x-idempotency-key", true
+	case "x-request-id":
+		return "x-request-id", true
+	default:
+		return runtime.DefaultHeaderMatcher(key)
+	}
+}
+
+func customOutgoingHeaderMatcher(key string) (string, bool) {
+	key = strings.ToLower(key)
+	switch key {
+	case "x-idempotency-key":
+		return "x-idempotency-key", true
+	default:
+		return runtime.DefaultHeaderMatcher(key)
+	}
 }

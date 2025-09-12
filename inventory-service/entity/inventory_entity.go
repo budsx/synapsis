@@ -30,8 +30,9 @@ type GetProductByIDResponse struct {
 }
 
 type ReserveStockRequest struct {
-	ProductID int64
-	Quantity  int64
+	ProductID      int64
+	Quantity       int64
+	IdempotencyKey string
 }
 
 type ReleaseStockRequest struct {

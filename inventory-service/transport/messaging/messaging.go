@@ -18,7 +18,7 @@ func NewMessagingListener(conf *config.Config, service services.InventoryService
 		return fmt.Errorf("rabbitmq client is nil")
 	}
 
-	if err := client.Subscribe("reserve.stock", fmt.Sprintf("reserve.stock.%s", subsName), ReserveStock(service)); err != nil {
+	if err := client.Subscribe(conf.TopicReserveStock, fmt.Sprintf("%s.%s", conf.TopicReserveStock, subsName), ReserveStock(service)); err != nil {
 		return err
 	}
 

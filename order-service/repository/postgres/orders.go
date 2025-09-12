@@ -8,6 +8,7 @@ import (
 
 	"github.com/budsx/synapsis/order-service/entity"
 	"github.com/budsx/synapsis/order-service/repository/interfaces"
+	_ "github.com/lib/pq"
 )
 
 type postgresRepository struct {

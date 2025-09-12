@@ -25,6 +25,7 @@ func main() {
 		},
 		RabbitmqConf: repository.RabbitmqConf{
 			RabbitmqURL: conf.Rabbitmq.RabbitmqURL,
+			TopicReserveStock: conf.TopicReserveStock,
 		},
 		MicroConf: repository.MicroConf{
 			InventoryHost: conf.InventoryHost,

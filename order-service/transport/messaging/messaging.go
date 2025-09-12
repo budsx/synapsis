@@ -18,13 +18,13 @@ func NewTransportOrderMessaging(conf *config.Config, service services.OrderServi
 		return fmt.Errorf("rabbitmq client is nil")
 	}
 
-	if err := client.Subscribe(conf.ReserveStockCallbackExchange, fmt.Sprintf("%s.%s", conf.ReserveStockCallbackExchange, subsName), ReserveStockCallback(service)); err != nil {
-		return err
-	}
+	// if err := client.Subscribe(conf.ReserveStockCallbackExchange, fmt.Sprintf("%s.%s", conf.ReserveStockCallbackExchange, subsName), ReserveStockCallback(service)); err != nil {
+	// 	return err
+	// }
 
-	if err := client.Subscribe(conf.ReleaseStockCallbackExchange, fmt.Sprintf("%s.%s", conf.ReleaseStockCallbackExchange, subsName), ReleaseStockCallback(service)); err != nil {
-		return err
-	}
+	// if err := client.Subscribe(conf.ReleaseStockCallbackExchange, fmt.Sprintf("%s.%s", conf.ReleaseStockCallbackExchange, subsName), ReleaseStockCallback(service)); err != nil {
+	// 	return err
+	// }
 
 	return nil
 }

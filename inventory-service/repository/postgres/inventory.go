@@ -8,6 +8,7 @@ import (
 
 	"github.com/budsx/synapsis/inventory-service/entity"
 	"github.com/budsx/synapsis/inventory-service/repository/interfaces"
+	_ "github.com/lib/pq"
 )
 
 type postgresRepository struct {
@@ -58,8 +59,8 @@ func (r *postgresRepository) CheckStock(ctx context.Context, productID int64) (i
 
 func (r *postgresRepository) ReserveStock(ctx context.Context, productID int64, quantity int64) error {
 	querySelect := `SELECT id, stock, version FROM products WHERE id = $1`
-	var version, stock int64
-	err := r.db.QueryRowContext(ctx, querySelect, productID).Scan(&version)
+	var productId, stock, version int64
+	err := r.db.QueryRowContext(ctx, querySelect, productID).Scan(&productId, &stock, &version)
 	if err != nil {
 		return err
 	}
@@ -75,7 +76,7 @@ func (r *postgresRepository) ReserveStock(ctx context.Context, productID int64, 
 	}
 	defer tx.Rollback()
 
-	queryUpdate := `UPDATE products SET stock = stock - $1 WHERE id = $2 AND version = $3`
+	queryUpdate := `UPDATE products SET stock = stock - $1, version = version + 1 WHERE id = $2 AND version = $3`
 	result, err := tx.ExecContext(ctx, queryUpdate, quantity, productID, version)
 	if err != nil {
 		return err
@@ -87,7 +88,7 @@ func (r *postgresRepository) ReserveStock(ctx context.Context, productID int64, 
 	}
 
 	if rowsAffected == 0 {
-		return fmt.Errorf("stock is not enough")
+		return fmt.Errorf("release stock failed will re retry immediately")
 	}
 
 	if err := tx.Commit(); err != nil {
