@@ -15,15 +15,15 @@ func (s *orderService) CreateOrder(ctx context.Context, req *entity.CreateOrderR
 	const (
 		funcName = "CreateOrder"
 	)
-	s.logger.Info(ctx, fmt.Sprintf("%s %s", funcName, "Upper"), "Request", req)
+	s.logger.Info(fmt.Sprintf("%s %s", funcName, "Upper"), "Request", req)
 
 	allow, err := s.repo.Redis.DeduplicateCreateOrder(ctx, req.IdempotencyKey)
 	if err != nil {
-		s.logger.Error(ctx, funcName, "Error", err)
+		s.logger.Error(fmt.Sprintf("%s %s", funcName, "Error"), err)
 		return nil, err
 	}
 	if !allow {
-		s.logger.Info(ctx, funcName, "Duplicate request", "request", req)
+		s.logger.Info(fmt.Sprintf("%s %s", funcName, "Duplicate request"), "request", req)
 		return &entity.CreateOrderResponse{
 			Message: OrderStatusRejected.String(),
 		}, status.Error(codes.PermissionDenied, "duplicate request")
@@ -33,12 +33,12 @@ func (s *orderService) CreateOrder(ctx context.Context, req *entity.CreateOrderR
 		ProductId: req.ProductID,
 	})
 	if err != nil {
-		s.logger.Error(ctx, funcName, "Error", err)
+		s.logger.Error(fmt.Sprintf("%s %s", funcName, "Error"), err)
 		return nil, err
 	}
 
 	if stock.Stock < req.Quantity || stock.Stock == 0 {
-		s.logger.Info(ctx, funcName, "Stock not enough", "StockResponse", stock)
+		s.logger.Info(fmt.Sprintf("%s %s", funcName, "Stock not enough"), "StockResponse", stock)
 		return &entity.CreateOrderResponse{
 			Message: OrderStatusRejected.String(),
 		}, nil
@@ -51,7 +51,7 @@ func (s *orderService) CreateOrder(ctx context.Context, req *entity.CreateOrderR
 		Status:    OrderStatusPending.String(),
 	})
 	if err != nil {
-		s.logger.Error(ctx, funcName, "Error", err)
+		s.logger.Error(fmt.Sprintf("%s %s", funcName, "Error"), err)
 		return nil, err
 	}
 
@@ -61,11 +61,11 @@ func (s *orderService) CreateOrder(ctx context.Context, req *entity.CreateOrderR
 		IdempotencyKey: req.IdempotencyKey,
 	})
 	if err != nil {
-		s.logger.Error(ctx, funcName, "Error", err)
+		s.logger.Error(fmt.Sprintf("%s %s", funcName, "Error"), err)
 		return nil, errors.New("failed to publish reserve stock")
 	}
 
-	s.logger.Info(ctx, funcName, "Success", "Request", req)
+	s.logger.Info(fmt.Sprintf("%s %s", funcName, "Success"), "Request", req)
 	return &entity.CreateOrderResponse{
 		Message: OrderStatusPending.String(),
 	}, nil
@@ -75,7 +75,7 @@ func (s *orderService) ReserveStockCallback(ctx context.Context, req *entity.Res
 	const (
 		funcName = "ReserveStockCallback"
 	)
-	s.logger.Info(ctx, funcName, "Request", req)
+	s.logger.Info(fmt.Sprintf("%s %s", funcName, "Request"), "Request", req)
 
 	// Logic:
 	// if reserve status success, update order status to success
@@ -86,7 +86,7 @@ func (s *orderService) ReserveStockCallback(ctx context.Context, req *entity.Res
 			Status:  OrderStatusConfirmed.String(),
 		})
 		if err != nil {
-			s.logger.Error(ctx, funcName, "Error", err)
+			s.logger.Error(fmt.Sprintf("%s %s", funcName, "Error"), err)
 			return err
 		}
 	} else if req.Status == ReserveStockStatusFailed.ToInt32() {
@@ -95,14 +95,14 @@ func (s *orderService) ReserveStockCallback(ctx context.Context, req *entity.Res
 			Status:  OrderStatusRejected.String(),
 		})
 		if err != nil {
-			s.logger.Error(ctx, funcName, "Error", err)
+			s.logger.Error(fmt.Sprintf("%s %s", funcName, "Error"), err)
 			return err
 		}
 	} else {
-		s.logger.Warn(ctx, funcName, "Invalid reserve stock status", "Status", req.Status)
+		s.logger.Warn(fmt.Sprintf("%s %s", funcName, "Invalid reserve stock status"), "Status", req.Status)
 		return nil
 	}
 
-	s.logger.Info(ctx, funcName, "Success")
+	s.logger.Info(fmt.Sprintf("%s %s", funcName, "Success"))
 	return nil
 }

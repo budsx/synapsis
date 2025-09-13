@@ -18,7 +18,7 @@ func main() {
 	repo, err := initRepository(conf)
 	ctx := context.Background()
 	if err != nil {
-		logger.Error(ctx, "Failed to create repository", "error", err)
+		logger.Error("Failed to create repository", "error", err)
 		return
 	}
 	service := services.NewOrderService(repo, logger)
@@ -26,24 +26,24 @@ func main() {
 
 	grpcServer, err := server.RunGRPCServer(conf, handler)
 	if err != nil {
-		logger.Error(ctx, "Failed to create gRPC server", "error", err)
+		logger.Error("Failed to create gRPC server", "error", err)
 		return
 	}
 
 	go func() {
 		err := server.RunGRPCGatewayServer(ctx, conf)
 		if err != nil {
-			logger.Error(ctx, "Failed to create gRPC gateway server", "error", err)
+			logger.Error("Failed to create gRPC gateway server", "error", err)
 			return
 		}
 	}()
 
 	if err := messaging.NewTransportOrderMessaging(conf, service, repo.MessageQueue); err != nil {
-		logger.Error(ctx, "Failed to create transport order messaging", "error", err)
+		logger.Error("Failed to create transport order messaging", "error", err)
 		return
 	}
 
-	logger.Info(ctx, "Service orders is running...")
+	logger.Info("Service orders is running...")
 	server.GracefulShutdown(ctx, map[string]server.Operation{
 		"grpc_server": func(ctx context.Context) error {
 			grpcServer.GracefulStop()

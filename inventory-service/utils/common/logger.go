@@ -1,7 +1,6 @@
 package common
 
 import (
-	"context"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -11,45 +10,63 @@ import (
 )
 
 type Logger struct {
-	*logrus.Logger
+	logger *logrus.Logger
 }
 
 func NewLogger() *Logger {
 	logger := logrus.New()
 	logger.SetOutput(os.Stdout)
+
+	logger.SetReportCaller(false)
+
 	logger.SetFormatter(&logrus.TextFormatter{
-		FullTimestamp: true,
-		CallerPrettyfier: func(frame *runtime.Frame) (function string, file string) {
-			return "", fmt.Sprintf("%s:%d", filepath.Base(frame.File), frame.Line)
-		},
+		FullTimestamp:   true,
+		TimestampFormat: "2006-01-02 15:04:05",
 	})
-	logger.SetReportCaller(true)
+
+	logger.SetLevel(logrus.InfoLevel)
 
 	return &Logger{
-		Logger: logger,
+		logger: logger,
 	}
 }
 
-func (l *Logger) Info(ctx context.Context, message string, args ...any) {
-	l.Logger.WithFields(logrus.Fields{
-		"[INFO]": args,
-	}).Info(message)
+func (l *Logger) GetLogger() *logrus.Entry {
+	if _, file, line, ok := runtime.Caller(2); ok {
+		filename := filepath.Base(file)
+		return l.logger.WithField("file", fmt.Sprintf("%s:%d", filename, line))
+	}
+	return l.logger.WithField("file", "unknown")
 }
 
-func (l *Logger) Error(ctx context.Context, message string, args ...any) {
-	l.Logger.WithFields(logrus.Fields{
-		"[ERROR]": args,
-	}).Error(message)
+func (l *Logger) Info(format string, v ...interface{}) {
+	l.GetLogger().Infof(format, v...)
 }
 
-func (l *Logger) Debug(ctx context.Context, message string, args ...any) {
-	l.Logger.WithFields(logrus.Fields{
-		"[DEBUG]": args,
-	}).Debug(message)
+func (l *Logger) Error(format string, v ...interface{}) {
+	l.GetLogger().Errorf(format, v...)
 }
 
-func (l *Logger) Warn(ctx context.Context, message string, args ...any) {
-	l.Logger.WithFields(logrus.Fields{
-		"[WARNING]": args,
-	}).Warn(message)
+func (l *Logger) Fatal(format string, v ...interface{}) {
+	l.GetLogger().Fatalf(format, v...)
+}
+
+func (l *Logger) Debug(format string, v ...interface{}) {
+	l.GetLogger().Debugf(format, v...)
+}
+
+func (l *Logger) Warn(format string, v ...interface{}) {
+	l.GetLogger().Warnf(format, v...)
+}
+
+func (l *Logger) WithField(key string, value interface{}) *logrus.Entry {
+	return l.logger.WithField(key, value)
+}
+
+func (l *Logger) WithFields(fields logrus.Fields) *logrus.Entry {
+	return l.logger.WithFields(fields)
+}
+
+func (l *Logger) SetLevel(level logrus.Level) {
+	l.logger.SetLevel(level)
 }

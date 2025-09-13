@@ -16,29 +16,36 @@ func (h *InventoryHandler) CheckStock(ctx context.Context, req *inventory.CheckS
 	}
 
 	return &inventory.CheckStockResponse{
-		Stock: stock.Stock,
+		ProductId: stock.ProductID,
+		Stock:     stock.Stock,
 	}, nil
 }
 
 func (h *InventoryHandler) ReserveStock(ctx context.Context, req *inventory.ReserveStockRequest) (*inventory.ReserveStockResponse, error) {
-	// success, err := h.service.ReserveStock(ctx, req.ProductId, req.Quantity)
-	// if err != nil {
-	// 	return nil, err
-	// }
+	err := h.service.ReserveStock(ctx, &entity.ReserveStockRequest{
+		ProductID: req.ProductId,
+		Quantity:  req.Quantity,
+	})
+	if err != nil {
+		return nil, err
+	}
 
 	return &inventory.ReserveStockResponse{
-		// Success: success,
+		Success: true,
 	}, nil
 }
 
 func (h *InventoryHandler) ReleaseStock(ctx context.Context, req *inventory.ReleaseStockRequest) (*inventory.ReleaseStockResponse, error) {
-	// success, err := h.service.ReleaseStock(ctx, req.ProductId, req.Quantity)
-	// if err != nil {
-	// 	return nil, err
-	// }
+	err := h.service.ReleaseStock(ctx, &entity.ReleaseStockRequest{
+		ProductID: req.ProductId,
+		Quantity:  req.Quantity,
+	})
+	if err != nil {
+		return nil, err
+	}
 
 	return &inventory.ReleaseStockResponse{
-		// Success: success,
+		Success: true,
 	}, nil
 }
 

@@ -22,6 +22,7 @@ type inventoryService struct {
 
 func NewInventoryService(repo *repository.Repository, logger *common.Logger) InventoryService {
 	return &inventoryService{
-		repo: repo,
+		repo:   repo,
+		logger: logger,
 	}
 }

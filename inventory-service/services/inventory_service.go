@@ -7,13 +7,13 @@ import (
 )
 
 func (s *inventoryService) CheckStock(ctx context.Context, request *entity.CheckStockRequest) (*entity.CheckStockResponse, error) {
-	s.logger.Info(ctx, "CheckStock", "request", request)
+	s.logger.Info("CheckStock", "request", request)
 	stock, err := s.repo.DBReadWriter.CheckStock(ctx, request.ProductID)
 	if err != nil {
-		s.logger.Error(ctx, "CheckStock", "error", err)
+		s.logger.Error("CheckStock", "error", err)
 		return nil, err
 	}
-	s.logger.Info(ctx, "CheckStock", "stock", stock)
+	s.logger.Info("CheckStock", "stock", stock)
 	return &entity.CheckStockResponse{
 		ProductID: request.ProductID,
 		Stock:     stock,
@@ -21,35 +21,35 @@ func (s *inventoryService) CheckStock(ctx context.Context, request *entity.Check
 }
 
 func (s *inventoryService) ReserveStock(ctx context.Context, request *entity.ReserveStockRequest) error {
-	s.logger.Info(ctx, "ReserveStock", "request", request)
+	s.logger.Info("ReserveStock", "request", request)
 	err := s.repo.DBReadWriter.ReserveStock(ctx, request.ProductID, request.Quantity)
 	if err != nil {
-		s.logger.Error(ctx, "ReserveStock", "error", err)
+		s.logger.Error("ReserveStock", "error", err)
 		return err
 	}
 
-	s.logger.Info(ctx, "ReserveStock", "success")
+	s.logger.Info("ReserveStock", "success")
 	return nil
 }
 
 func (s *inventoryService) ReleaseStock(ctx context.Context, request *entity.ReleaseStockRequest) error {
-	s.logger.Info(ctx, "ReleaseStock", "request", request)
+	s.logger.Info("ReleaseStock", "request", request)
 	err := s.repo.DBReadWriter.ReleaseStock(ctx, request.ProductID, request.Quantity)
 	if err != nil {
-		s.logger.Error(ctx, "ReleaseStock", "error", err)
+		s.logger.Error("ReleaseStock", "error", err)
 		return err
 	}
-	s.logger.Info(ctx, "ReleaseStock", "success")
+	s.logger.Info("ReleaseStock", "success")
 	return nil
 }
 
 func (s *inventoryService) GetProductByID(ctx context.Context, productID int64) (*entity.Product, error) {
-	s.logger.Info(ctx, "GetProductByID", "productID", productID)
+	s.logger.Info("GetProductByID", "productID", productID)
 	result, err := s.repo.DBReadWriter.GetProductByID(ctx, productID)
 	if err != nil {
-		s.logger.Error(ctx, "GetProductByID", "error", err)
+		s.logger.Error("GetProductByID", "error", err)
 		return nil, err
 	}
-	s.logger.Info(ctx, "GetProductByID", "result", result)
+	s.logger.Info("GetProductByID", "result", result)
 	return result, nil
 }

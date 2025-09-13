@@ -20,6 +20,7 @@ type orderService struct {
 
 func NewOrderService(repo *repository.Repository, logger *common.Logger) OrderService {
 	return &orderService{
-		repo: repo,
+		repo:   repo,
+		logger: logger,
 	}
 }
