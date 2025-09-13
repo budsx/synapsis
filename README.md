@@ -39,8 +39,18 @@ docker-compose up -d
 docker-compose ps
 ```
 
-
 ### 3. cURL API
+
+### API Endpoints
+
+#### Inventory Service (Port 8001)
+- `GET /v1/inventory/check-stock/{product_id}` - Check available stock
+- `GET /v1/inventory/get-product-by-id/{product_id}` - Get product details
+- `POST /v1/inventory/reserve-stock` - Reserve stock
+- `POST /v1/inventory/release-stock` - Release stock
+
+#### Order Service (Port 8003)
+- `POST /v1/order/create-order` - Create new order
 
 #### Using cURL
 ```bash
@@ -57,33 +67,6 @@ curl -X POST http://localhost:8003/v1/order/create-order \
   -d '{"product_id": "1", "quantity": "2", "idempotency_key": "test-001"}'
 ```
 
-#### Using HTTP Files
-Create `test.http` file and use VS Code REST Client extension:
-```http
-### Check Stock
-GET http://localhost:8001/v1/inventory/check-stock/1
-
-### Create Order
-POST http://localhost:8003/v1/order/create-order
-Content-Type: application/json
-
-{
-  "product_id": "1",
-  "quantity": "2",
-  "idempotency_key": "test-001"
-}
-```
-
-### API Endpoints
-
-#### Inventory Service (Port 8001)
-- `GET /v1/inventory/check-stock/{product_id}` - Check available stock
-- `GET /v1/inventory/get-product-by-id/{product_id}` - Get product details
-- `POST /v1/inventory/reserve-stock` - Reserve stock
-- `POST /v1/inventory/release-stock` - Release stock
-
-#### Order Service (Port 8003)
-- `POST /v1/order/create-order` - Create new order
 
 ### Stopping Services
 ```bash
